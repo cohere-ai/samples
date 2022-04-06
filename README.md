@@ -21,3 +21,4 @@
 This project showcases sample uses of Cohere's API. Samples include:
 
 - **cohere-slack-starter-app**: A Slack App starter project to generate chat bot dialog or summarize channel activity.
+- **trivia-generator**: A React sample project to generate trivia questions from a desired topic.

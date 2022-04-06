@@ -1,3 +1,6 @@
 [submodule "cohere-slack-starter-app"]
 	path = cohere-slack-starter-app
 	url = git@github.com:cohere-samples/cohere-slack-starter-app.git
+[submodule "trivia-generator"]
+	path = trivia-generator
+	url = https://github.com/elaineg/trivia-generator.git
