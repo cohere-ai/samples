@@ -4,3 +4,6 @@
 [submodule "trivia-generator"]
 	path = trivia-generator
 	url = https://github.com/elaineg/trivia-generator.git
+[submodule "six-degrees-of-wikipedia"]
+	path = six-degrees-of-wikipedia
+	url = git@github.com:cohere-samples/sdow.git
