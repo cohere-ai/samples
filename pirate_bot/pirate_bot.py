@@ -8,6 +8,7 @@ import ast
 import yaml
 import random
 import numpy as np
+import sys
 
 with open('config.yml') as file:
     config = yaml.load(file)
@@ -84,9 +85,9 @@ class pirateRephraser():
         return (prediction)
 
 
-co_toxicity = pirateClassifier('svl0ztq3f3HJYbDLNRiUbzmRKsmxMm06Hs0ZdI9b')
-co_rephraser = pirateRephraser('svl0ztq3f3HJYbDLNRiUbzmRKsmxMm06Hs0ZdI9b')
-co = cohere.Client('svl0ztq3f3HJYbDLNRiUbzmRKsmxMm06Hs0ZdI9b')
+co_toxicity = pirateClassifier(sys.argv[1])
+co_rephraser = pirateRephraser(sys.argv[1])
+co = cohere.Client(sys.argv[1])
 
 
 @client.event
@@ -168,4 +169,4 @@ async def on_message(message):
         await message.channel.send('`' + acceptable_generations[max_i] + '`')
 
 
-client.run('OTQ5NDM3Mjc0NjQxMjgxMDQ1.YiKWXQ.puVS7NTf_Qr9JdM9gzl4S_DMPuI')
+client.run(sys.argv[0])
