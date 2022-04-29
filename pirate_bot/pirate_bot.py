@@ -85,9 +85,11 @@ class pirateRephraser():
         return (prediction)
 
 
-co_toxicity = pirateClassifier(sys.argv[1])
-co_rephraser = pirateRephraser(sys.argv[1])
-co = cohere.Client(sys.argv[1])
+print("sys.argv[2]")
+print(sys.argv)
+co_toxicity = pirateClassifier(sys.argv[2])
+co_rephraser = pirateRephraser(sys.argv[2])
+co = cohere.Client(sys.argv[2])
 
 
 @client.event
@@ -169,4 +171,4 @@ async def on_message(message):
         await message.channel.send('`' + acceptable_generations[max_i] + '`')
 
 
-client.run(sys.argv[0])
+client.run(sys.argv[1])
