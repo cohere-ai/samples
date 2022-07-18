@@ -71,17 +71,13 @@ class pirateRephraser():
         prompt = self.starting_prompt + "\n" + "\n\n".join([
             self.prompts[0] + ":" + e[0] + "\n" + self.prompts[1] + ":" + e[1] for e in self.examples
         ]) + "\n\n" + self.prompts[0] + ":" + msg + "\n" + self.prompts[1] + ":"
-        #print(prompt)
-        prediction = []
-        for i in range(4):
-            print(i)
-            prediction.append(
-                self.co.generate(model='xlarge-20220301',
-                                 prompt=prompt,
-                                 max_tokens=50,
-                                 stop_sequences=["\n"],
-                                 num_generations=1,
-                                 temperature=1.2).generations[0])
+        print(prompt)
+        prediction = self.co.generate(model='large',
+                                      prompt=prompt,
+                                      max_tokens=50,
+                                      stop_sequences=["\n"],
+                                      num_generations=4,
+                                      temperature=1.2).generations
         return (prediction)
 
 
@@ -137,38 +133,45 @@ def cosine_similarity(a, b):
 
 @client.event
 async def on_message(message):
-    if message.content and message.content[0] == config['command-prefix']:
-        await client.process_commands(message)
-        return
+    pirate_channel = discord.utils.get(message.guild.channels, name="pirates-only")
+    print(message.content)
+    print(message.channel.name)
+    if message.channel.name == 'pirates-only':
+        if message.content and message.content[0] == config['command-prefix']:
+            await client.process_commands(message)
+            return
 
-    if message.author == client.user:
-        return
+        if message.author == client.user:
+            return
+            
 
-    print("classiying")
-    classification, rating = co_toxicity.cohere_classify([message.content])
-    classification = classification[0]
-    rating = rating[0]
-    print(classification, rating)
-    if classification != 'pirate':
-        await message.add_reaction('☠️')
-        generatsions = [g.text for g in co_rephraser.rephrase(message.content)]
-        print("what", generatsions)
-        classifications, ratings = co_toxicity.cohere_classify(generatsions)
-        piratness = [r['pirate'] for r in ratings]
-        acceptable_generations = []
-        for i, p in enumerate(piratness):
-            print(float(p))
-            if float(p) >= np.mean(piratness) and not generatsions[i].isspace():
-                acceptable_generations.append(generatsions[i])
-        embeddings = co.embed(model='small', texts=acceptable_generations + [message.content]).embeddings
-        gen_embeddings = embeddings[:-1]
-        msg_embedding = embeddings[-1]
-        distances = [cosine_similarity(x, msg_embedding) for x in gen_embeddings]
-        print(distances)
-        print(acceptable_generations)
-        max_i = np.argmax(distances)
-        await message.channel.send("Arrg! Thats not pirate enough! did ya mean:")
-        await message.channel.send('`' + acceptable_generations[max_i] + '`')
+        print("classiying")
+        classification, rating = co_toxicity.cohere_classify([message.content])
+        classification = classification[0]
+        rating = rating[0]
+        print(classification, rating)
+        if classification != 'pirate':
+            await message.add_reaction('☠️')
+            generatsions = [g.text for g in co_rephraser.rephrase(message.content)]
+            print("what", generatsions)
+            classifications, ratings = co_toxicity.cohere_classify(generatsions)
+            piratness = [r['pirate'] for r in ratings]
+            acceptable_generations = []
+            for i, p in enumerate(piratness):
+                print(float(p))
+                if float(p) >= np.mean(piratness) and not generatsions[i].isspace():
+                    acceptable_generations.append(generatsions[i])
+            embeddings = co.embed(model='small', texts=acceptable_generations + [message.content]).embeddings
+            gen_embeddings = embeddings[:-1]
+            msg_embedding = embeddings[-1]
+            distances = [cosine_similarity(x, msg_embedding) for x in gen_embeddings]
+            print(distances)
+            print(acceptable_generations)
+            max_i = np.argmax(distances)
+            await message.channel.send("Arrg! Thats not pirate enough! did ya mean:")
+            await message.channel.send('`' + acceptable_generations[max_i] + '`')
+        else:
+            await message.add_reaction('🦜')
 
 
 client.run(sys.argv[1])
