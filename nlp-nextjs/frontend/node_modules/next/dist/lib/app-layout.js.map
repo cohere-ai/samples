@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../lib/app-layout.tsx"],"names":["AppLayout","children","html","head","title","body"],"mappings":"AAAA;;;;kBAMwBA,SAAS;AANf,IAAA,MAAO,kCAAP,OAAO,EAAA;AAMV,SAASA,SAAS,CAAC,EAAEC,QAAQ,CAAA,EAAe,EAAE;IAC3D,qBACE,6BAACC,MAAI,sBACH,6BAACC,MAAI,sBAEH,6BAACC,OAAK,QAAC,MAAI,CAAQ,CACd,gBACP,6BAACC,MAAI,QAAEJ,QAAQ,CAAQ,CAClB,CACR;CACF"}
