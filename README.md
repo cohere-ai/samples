@@ -26,5 +26,6 @@ This project showcases sample uses of Cohere's API. Samples include:
 - **piracy**: A chat bot example that illustrates the classification and rephrasing capabilities of our LLMs.
 - **google-sheets-nlp**: Add text classification, sentiment analysis, and summarization features to Google Sheets documents.
 - **startup-idea-generator**: An example of how, using Cohere and Streamlit, you can quickly turn your language AI product idea into a basic prototype.
+- **nlp-nextjs**: A Next.js application that does sentiment analysis on hotel reviews.
 
 [1]: https://github.com/jwngr/sdow
