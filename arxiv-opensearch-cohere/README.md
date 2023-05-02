@@ -248,6 +248,7 @@ You are now able to search your index semantically! A full demo of the semantic 
 * Run `python create_index.py` to create an L2 based index 
 * Optionally, run `python create_cosine_index.py` to create a cosine based index
 * Run `demo.ipynb` to visualize the results
+* If you'd like to run the streamlit demo, run `streamlit run demoapp.py --browser.gatherUsageStats=False --server.port=8080 --server.address=0.0.0.0` and your app will be available at `http://localhost:8080`
 
 ## References 
 * Opensearch knn [docs](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index/)
