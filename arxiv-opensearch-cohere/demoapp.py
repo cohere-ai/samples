@@ -1,12 +1,7 @@
-import streamlit as st
-from utils import (
-    find_similar_docs,
-    search_fuzzy,
-    search_match_phrase,
-    format_search_output,
-)
 import pandas as pd
-from utils import colorize, colorize_st
+import streamlit as st
+from utils import (colorize, colorize_st, find_similar_docs,
+                   format_search_output, search_fuzzy, search_match_phrase)
 
 
 def visualize(top_row, color):
@@ -43,24 +38,17 @@ query_keywords = [q for q in query.split(" ") if len(q) > 2]
 
 lexical_df = pd.DataFrame()
 for q in query_keywords:
-    # for q in [query]:
-    out_shard = search_match_phrase(
-        field="text", query=q, index_name=INDEX_NAME
-    )
+    out_shard = search_match_phrase(field="text", query=q, index_name=INDEX_NAME)
     df_ = format_search_output(out_shard)
     lexical_df = pd.concat([lexical_df, df_], axis=0)
 
 fuzzy_df = pd.DataFrame()
 for q in query_keywords:
-    out_shard = search_fuzzy(
-        field="text", query=q, fuzziness=1, index_name=INDEX_NAME
-    )
+    out_shard = search_fuzzy(field="text", query=q, fuzziness=1, index_name=INDEX_NAME)
     df_ = format_search_output(out_shard)
     fuzzy_df = pd.concat([fuzzy_df, df_], axis=0)
 
-semantic_out = find_similar_docs(
-    query=query, k=2, num_results=3, index_name=INDEX_NAME
-)
+semantic_out = find_similar_docs(query=query, k=2, num_results=3, index_name=INDEX_NAME)
 semantic_df = format_search_output(semantic_out)
 
 st.markdown("## Visualize search results")

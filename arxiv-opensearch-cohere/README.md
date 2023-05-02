@@ -1,7 +1,7 @@
 # Cohere / Opensearch implementation
 
 The following steps outline how a user would perform vector search with Cohere and Opensearch. Starting with spinning up a local OpenSearch instance and how a user would store Cohere embeddings in an OpenSearch index, and then explaining the methods for retrieval using these embeddings.
-Note, these instructions are based on OpenSearch v2.6.0.
+Note, these instructions are based on OpenSearch v2.5.0.
 
 ## Step 1: Spin up an instance of OpenSearch
 
@@ -31,7 +31,7 @@ To make sure your server is running you can run `curl localhost:9200` and you sh
 
 
 ## Step 2: Embed your documents 
-We will be utilizing Coheres embed endpoint to embed documents into vectors. Currently, OpenSearch only supports a maximum vector size of 1024 so we will be using the Cohere `small` model. 
+We will be utilizing Cohere's `embed` endpoint to embed documents into vectors. For demo purposes, we will be using the Cohere `small` model which will output vectors with 1024 floating point elements. 
 
 To follow along, download the [arxiv dataset](https://www.kaggle.com/datasets/Cornell-University/arxiv). We subset it to 5000 rows for example purposes and saved it to a local `/data` folder. 
 
@@ -127,10 +127,10 @@ def get_opensearch_client(host="localhost", port=9200) -> OpenSearch:
 client = get_opensearch_client()
 ```
 
-Create an index by first creating the `body` payload and then submitting that to the index endpoint. The `body` payload specifies the name of your vectors, the size and various Approximate k-NN parameters discussed above. In this example, our document index will be called `arxiv`. 
+Create an index by first creating the `body` payload and then submitting that to the index endpoint. The `body` payload specifies the name of your vectors, the size and various Approximate k-NN parameters discussed above. In this example, our document index will be called `arxiv-l2`. 
 
 ```python
-INDEX_NAME = "arxiv"
+INDEX_NAME = "arxiv-l2"
 
 body = {
     "settings": {"index": {"knn": "true", "knn.algo_param.ef_search": 100}},
@@ -213,8 +213,8 @@ def find_similar_docs(query: str, k: int, num_results: int, index_name: str) -> 
     """
     Main vector search capability using knn on input query strings.
     Args:
-        k: number of top-k similar vectors to retrieve from opensearch index
-        num_results: number of the top-k similar vectors to retrieve
+        k: number of k-similar neighbors/vectors to retrieve from opensearch index
+        num_results: number of the k-similar vectors to retrieve.
         index_name: index name in opensearch
     """
     embed_vector = get_cohere_embedding(query)
@@ -241,3 +241,15 @@ print(search_output)
 ```
 
 You are now able to search your index semantically! A full demo of the semantic search functionality versus the lexical search built into OpenSearch can be viewed at in this [notebook](demo.ipynb). 
+
+## TL,DR: 
+
+* Run `python cache_vectors.py` to create your embeddings 
+* Run `python create_index.py` to create an L2 based index 
+* Optionally, run `python create_cosine_index.py` to create a cosine based index
+* Run `demo.ipynb` to visualize the results
+
+## References 
+* Opensearch knn [docs](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index/)
+* opensearch-py [guide](https://github.com/opensearch-project/opensearch-py/blob/main/guides/search.md)
+* opensearch-py-ml [docs](https://opensearch-project.github.io/opensearch-py-ml/reference/api/DataFrame.html)
