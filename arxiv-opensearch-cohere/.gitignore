@@ -1,0 +1,8 @@
+*.ipynb
+*.jsonl
+*.env
+*.csv
+*.dockerignore
+opensearchvenv
+*.ipynb_checkpoints
+*__pycache__

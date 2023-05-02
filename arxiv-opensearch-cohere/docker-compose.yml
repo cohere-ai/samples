@@ -1,0 +1,16 @@
+version: "3"
+services:
+  opensearch-node:
+    image: opensearchproject/opensearch:2.5.0
+    container_name: opensearch-node
+    environment:
+      - discovery.type=single-node
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
+      - plugins.ml_commons.only_run_on_ml_node=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
