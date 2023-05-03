@@ -163,7 +163,9 @@ print(client.indices.get_alias("*").keys())
 If for some reason your index didn't get created properly and you want to remove the entire index and add a new one, you can do so with the following line: 
 ```python
 response = client.indices.delete(index=INDEX_NAME)
+print(response)
 ```
+Just make sure you create an index before the next part! :) 
 
 Now that the index has been created, we need to populate it with data. We are going to use the `cache.jsonl` we created in the previous step and the dataset file to populate the index with documents and their corresponding embedding vectors: 
 ```python
