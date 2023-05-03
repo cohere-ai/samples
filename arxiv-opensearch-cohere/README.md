@@ -1,6 +1,6 @@
-# Cohere / Opensearch implementation
+# Cohere / OpenSearch implementation
 
-The following steps outline how a user would perform vector search with Cohere and Opensearch. Starting with spinning up a local OpenSearch instance and how a user would store Cohere embeddings in an OpenSearch index, and then explaining the methods for retrieval using these embeddings.
+The following steps outline how a user would perform vector search with Cohere and OpenSearch. Starting with spinning up a local OpenSearch instance and how a user would store Cohere embeddings in an OpenSearch index, and then explaining the methods for retrieval using these embeddings.
 Note, these instructions are based on OpenSearch v2.5.0.
 
 ## Step 1: Spin up an instance of OpenSearch
@@ -57,17 +57,19 @@ for text in df["abstract"].values.tolist():
 Once you have a list of texts to embed, hit the `embed` endpoint using the following helper function:
 ```python
 import numpy as np 
+from typing import List, Union 
 
-def get_cohere_embedding(text: Union[str, List[str]]) -> List[float]:
+def get_cohere_embedding(
+    text: Union[str, List[str]], model_name: str = "small"
+) -> List[float]:
     """
     Embed a single text with cohere client and return list of float32
     """
     if type(text) == str:
-        embed = np.array(co.embed([text], model=COHERE_MODEL).embeddings)
-        return list(embed.reshape(-1))
+        embed = co.embed([text], model=model_name).embeddings
     else:
-        embed = np.array(co.embed(text, model=COHERE_MODEL).embeddings)
-        return [x.tolist() for x in embed]
+        embed = co.embed(text, model=model_name).embeddings
+    return embed
 
 embed_list = get_cohere_embedding(texts)
 ```
@@ -83,7 +85,7 @@ with open("cache.jsonl", "w") as fp:
 
 You have successfully embedded your corpus! 
 
-The full script can be run with `python cache_vectors.py`. 
+The full script can be run with `python` [cache_vectors.py](cache_vectors.py)`. Note, make sure to add your COHERE_API_KEY in the [config.py](config.py) as we are reading it from the environment variable.
 
 ## Step 3: Create an index for your documents
 We need to create an index to store our documents and their dense vectors to allow OpenSearch to do vector search. 
@@ -104,7 +106,6 @@ Additionally, we need to set configurations for the kNN search. See docs [here](
 * `method.engine` = the library to use for indexing/search. When using a CPU, `nmslib` is the recommended engine option
 
 When selecting `hnsw` as the `method.name`, we have additional parameters for the `hnsw` algorithm such as `ef_construction` and `m`. See docs [here](https://opensearch.org/docs/2.5/search-plugins/knn/index/) for guidance on setting the right parameters.
-
 
 
 We are using the Python [opensearch-py](https://pypi.org/project/opensearch-py/) package to communicate with the OpenSearch cluster in the backend. For demo purposes, we are turning off SSL verification since it is a simple, local cluster. 
@@ -191,7 +192,7 @@ print(oml_df.shape)
 
 Your index has been created! 
 
-Full script can be run with `python create_index.py`. 
+Full script can be run with `python` [create_index.py](create_index.py)`. 
 
 ## Step 4: Query your index for similar documents using cohere embeddings
 
@@ -200,22 +201,28 @@ Since we are using vectors for the kNN search, any of our queries must be transl
 
 We can do so with the following helper functions: 
 ```python
+from typing import List, Union 
 
-def get_cohere_embedding(text: str) -> List[float]:
+def get_cohere_embedding(
+    text: Union[str, List[str]], model_name: str = "small"
+) -> List[float]:
     """
     Embed a single text with cohere client and return list of float32
     """
-    embed = np.array(co.embed([text], model=COHERE_MODEL).embeddings)
-    return list(embed.reshape(-1))
+    if type(text) == str:
+        embed = co.embed([text], model=model_name).embeddings
+    else:
+        embed = co.embed(text, model=model_name).embeddings
+    return embed
 
 
 def find_similar_docs(query: str, k: int, num_results: int, index_name: str) -> Dict:
     """
     Main vector search capability using knn on input query strings.
     Args:
-        k: number of k-similar neighbors/vectors to retrieve from opensearch index
-        num_results: number of the k-similar vectors to retrieve.
-        index_name: index name in opensearch
+        k: number of k-similar neighbors/vectors to retrieve from OpenSearch index
+        num_results: number of the k-similar vectors to retrieve
+        index_name: index name in OpenSearch
     """
     embed_vector = get_cohere_embedding(query)
 
@@ -243,14 +250,18 @@ print(search_output)
 You are now able to search your index semantically! A full demo of the semantic search functionality versus the lexical search built into OpenSearch can be viewed at in this [notebook](demo.ipynb). 
 
 ## TL,DR: 
-
-* Run `python cache_vectors.py` to create your embeddings 
-* Run `python create_index.py` to create an L2 based index 
-* Optionally, run `python create_cosine_index.py` to create a cosine based index
+* Set up your configs in [config.py](config.py)
+* Run `python` [cache_vectors.py](cache_vectors.py) to create your embeddings 
+* Run `python` [create_index.py](create_index.py) to create an L2 based index 
+* Optionally, run `python` [create_cosine_index.py](create_cosine_index.py) to create a cosine based index
 * Run `demo.ipynb` to visualize the results
-* If you'd like to run the streamlit demo, run `streamlit run demoapp.py --browser.gatherUsageStats=False --server.port=8080 --server.address=0.0.0.0` and your app will be available at `http://localhost:8080`
+* If you'd like to run the streamlit demo run the following and your app will be available at `http://localhost:8080`
+
+    ```
+    streamlit run demoapp.py --browser.gatherUsageStats=False --server.port=8080 --server.address=0.0.0.0
+    ``` 
 
 ## References 
-* Opensearch knn [docs](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index/)
+* OpenSearch knn [docs](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index/)
 * opensearch-py [guide](https://github.com/opensearch-project/opensearch-py/blob/main/guides/search.md)
 * opensearch-py-ml [docs](https://opensearch-project.github.io/opensearch-py-ml/reference/api/DataFrame.html)

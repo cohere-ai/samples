@@ -5,17 +5,20 @@ from dotenv import load_dotenv
 from opensearchpy import OpenSearch
 
 load_dotenv(".env")
+cohere_vector_size_lookup = {"small": 1024, "large": 4096}
 
 COHERE_API_KEY = os.environ["COHERE_API_KEY"]
 COHERE_MODEL = "small"
 VECTOR_NAME = f"cohere_{COHERE_MODEL}_vector"
-VECTOR_SIZE = 1024
+VECTOR_SIZE = cohere_vector_size_lookup[COHERE_MODEL]
 DATA_PATH = "data/arxiv_5000.csv"
 DATA_COLUMNS = ["title", "abstract"]
 EMBED_COLUMN = ["abstract"]
 
 
-def get_opensearch_client(host="localhost", port=9200) -> OpenSearch:
+def get_opensearch_client(
+    host: str = "localhost", port: str = 9200
+) -> OpenSearch:
     # Create the client with SSL/TLS and hostname verification disabled.
     client = OpenSearch(
         hosts=[{"host": host, "port": port}],
@@ -28,9 +31,10 @@ def get_opensearch_client(host="localhost", port=9200) -> OpenSearch:
     return client
 
 
-def get_cohere_client(api_key):
+def get_cohere_client(api_key: str):
     return cohere.Client(api_key)
 
 
+# init your clients
 co = get_cohere_client(COHERE_API_KEY)
-client = get_opensearch_client(host=os.getenv("OPENSEARCH_HOST", "localhost"))
+client = get_opensearch_client()
