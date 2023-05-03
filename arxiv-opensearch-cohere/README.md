@@ -113,7 +113,9 @@ Create a client like so:
 ```python
 from opensearchpy import OpenSearch
 
-def get_opensearch_client(host="localhost", port=9200) -> OpenSearch:
+def get_opensearch_client(
+    host: str = "localhost", port: str = 9200
+) -> OpenSearch:
     # Create the client with SSL/TLS and hostname verification disabled.
     client = OpenSearch(
         hosts=[{"host": host, "port": port}],
@@ -124,6 +126,7 @@ def get_opensearch_client(host="localhost", port=9200) -> OpenSearch:
         ssl_show_warn=False,
     )
     return client
+
 
 client = get_opensearch_client()
 ```
@@ -157,7 +160,12 @@ You can sanity check your index has been created by running the following line t
 print(client.indices.get_alias("*").keys())
 ```
 
-Now that the index is created, we need to populate it with data. We are going to use the `cache.jsonl` we created in the previous step and the dataset file to populate the index with documents and their corresponding embedding vectors: 
+If for some reason your index didn't get created properly and you want to remove the entire index and add a new one, you can do so with the following line: 
+```python
+response = client.indices.delete(index=INDEX_NAME)
+```
+
+Now that the index has been created, we need to populate it with data. We are going to use the `cache.jsonl` we created in the previous step and the dataset file to populate the index with documents and their corresponding embedding vectors: 
 ```python
 with open("cache.jsonl", "r") as fp:
     cache = json.load(fp)
