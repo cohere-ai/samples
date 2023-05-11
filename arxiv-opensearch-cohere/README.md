@@ -63,7 +63,7 @@ def get_cohere_embedding(
     text: Union[str, List[str]], model_name: str = "small"
 ) -> List[float]:
     """
-    Embed a single text with cohere client and return list of float32
+    Embed a single text with cohere client and return list of floats
     """
     if type(text) == str:
         embed = co.embed([text], model=model_name).embeddings
@@ -217,7 +217,7 @@ def get_cohere_embedding(
     text: Union[str, List[str]], model_name: str = "small"
 ) -> List[float]:
     """
-    Embed a single text with cohere client and return list of float32
+    Embed a single text with cohere client and return list of floats
     """
     if type(text) == str:
         embed = co.embed([text], model=model_name).embeddings

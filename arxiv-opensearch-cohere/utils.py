@@ -40,7 +40,6 @@ def get_schema_mapping(index_name: str) -> None:
 def batch_embed(texts: List[str], batch_size: int = 256) -> List[np.array]:
     """
     Embed a list of text with cohere embedding model.
-    Output is in float32 as opensearch cannot use float16
     """
     embeddings = []
     for start_idx in tqdm(range(0, len(texts), batch_size)):
@@ -59,7 +58,7 @@ def get_cohere_embedding(
     text: Union[str, List[str]], model_name: str = "small"
 ) -> List[float]:
     """
-    Embed a single text with cohere client and return list of float32
+    Embed a single text with cohere client and return list of floats
     """
     if type(text) == str:
         embed = co.embed([text], model=model_name).embeddings
@@ -79,9 +78,7 @@ def search_match_phrase(field: str, query: str, index_name: str) -> Dict:
     return response
 
 
-def search_fuzzy(
-    field: str, query: str, fuzziness: int, index_name: str
-) -> Dict:
+def search_fuzzy(field: str, query: str, fuzziness: int, index_name: str) -> Dict:
     """
     Search by specifying fuzziness to account for typos and misspelling.
     """
@@ -104,9 +101,7 @@ def search_fuzzy(
     return response
 
 
-def find_similar_docs(
-    query: str, k: int, num_results: int, index_name: str
-) -> Dict:
+def find_similar_docs(query: str, k: int, num_results: int, index_name: str) -> Dict:
     """
     Main vector search capability using knn on input query strings.
     Args:
@@ -152,9 +147,7 @@ def format_search_output(out: Dict) -> pd.DataFrame:
     return df.sort_values(by="score", ascending=False)
 
 
-def colorize(
-    sentence: str, words: Union[List[str], str], color: str = "blue"
-) -> str:
+def colorize(sentence: str, words: Union[List[str], str], color: str = "blue") -> str:
     """Visualization function that will highlight the query words
     in a sentence with the color provided"""
     sentence = sentence.lower()
@@ -180,13 +173,9 @@ def colorize_st(
     sentence = sentence.lower()
     if type(words) == list:
         for word in words:
-            sentence = sentence.replace(
-                word.lower(), f"**:{color}[{word.lower()}]**"
-            )
+            sentence = sentence.replace(word.lower(), f"**:{color}[{word.lower()}]**")
     elif type(words) == str:
-        sentence = sentence.replace(
-            words.lower(), f"**:{color}[{words.lower()}]**"
-        )
+        sentence = sentence.replace(words.lower(), f"**:{color}[{words.lower()}]**")
     else:
         raise f"cannot colorize {sentence}"
     return sentence
