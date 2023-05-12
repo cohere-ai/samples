@@ -1,0 +1,6 @@
+fastapi
+cohere
+pydantic
+uvicorn
+segment
+segment-analytics-python

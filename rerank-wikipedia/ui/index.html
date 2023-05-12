@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"
+    />
+    <link rel="stylesheet" href="./fonts.css" />
+    <link href="./output.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <title>co.rerank() Demo: Wikipedia</title>
+  </head>
+
+  <body id="wikipedia" class="search-pages">
+    <!-- LANDING 'PAGE' -->
+    <section id="landing-section">
+      <header class="wiki-header pt-5 sm:pt-3">
+        <nav class="flex sm:hidden">
+          <a href="https://cohere.com" target="_blank">
+            <div
+              class="bg-volcanic-800 flex justify-center w-28 h-11 rounded-lg"
+            >
+              <img
+                class="py-2 px-4"
+                src="./assets/logo-with-text.svg"
+                alt="cohere logo"
+              />
+            </div>
+          </a>
+        </nav>
+        <div class="max-w-lg pt-24 md:pt-20 sm:pt-16">
+          <h4
+            class="text-blue-50 text-sm leading-5 tracking-wider uppercase md:text-xs"
+          >
+            Search
+          </h4>
+          <h1 class="pt-6 sm:text-3xl">
+            Search Wikipedia with
+            <span class="block">Cohere’s co.rerank()</span>
+          </h1>
+          <p
+            class="pt-8 text-base leading-relaxed tracking-wider text-blue-50 md:text-sm sm:pt-4"
+          >
+            Compare Cohere’s co.rerank() with Wikipedia’s search. Type in a
+            topic to see a list of recommended wiki pages using both search
+            engines.
+          </p>
+        </div>
+      </header>
+
+      <section class="search-container md:mt-16 sm:mt-6">
+        <div class="outer-search pb-16 sm:pb-10">
+          <label for="search-bar" class="sr-only">Search Wikipedia</label>
+          <input
+            id="search-bar"
+            class="search caret-coral-500"
+            type="text"
+            placeholder="Search Wikipedia"
+          />
+        </div>
+        <div class="suggester border-t border-marble-500">
+          <p class="text-volcanic-900 text-sm py-6 md:text-xs">
+            Not sure what to ask? Try one of these:
+          </p>
+          <ul class="search-options">
+            <li class="options-list">
+              <button
+                class="search-option-btn"
+                onclick="handleSearch('who are the beatles','wiki')"
+              >
+                Who are the Beatles?
+              </button>
+            </li>
+            <li class="options-list">
+              <button
+                class="search-option-btn"
+                onclick="handleSearch('Where are monets water lilies','wiki')"
+              >
+                Where are Monet’s Water Lillies?
+              </button>
+            </li>
+            <li class="options-list">
+              <button
+                class="search-option-btn"
+                onclick="handleSearch('david bowie hits','wiki')"
+              >
+                David Bowie hits
+              </button>
+            </li>
+            <li class="options-list">
+              <button
+                class="search-option-btn"
+                onclick="handleSearch('best code editor','wiki')"
+              >
+                Best code editor
+              </button>
+            </li>
+          </ul>
+        </div>
+      </section>
+      <div class="source-code flex justify-end md:justify-start hidden">
+        <p class="text-blue-50 uppercase mt-6 text-sm">
+          Demo Source Code:
+          <!-- repo to be updated -->
+          <a href="https://github.com/cohere-ai/search-demos" target="_blank"
+            >/search-demos</a
+          >
+        </p>
+      </div>
+    </section>
+
+    <!-- RESULTS 'PAGE' -->
+    <section
+      id="results-section"
+      class="px-20 bg-results-bg min-h-screen bg-cover bg-no-repeat bg-center pt-11 hidden md:bg-mobile-results-bg lg:p-8 md:p-4 md:relative md:h-full"
+    >
+      <!-- MOBILE FEEDBACK HOLDER -->
+      <div class="mobile-fb hidden h-36" id="mb-feedback-holder">
+        <h4 class="text-black uppercase py-3">
+          Which generated better results?
+        </h4>
+        <div class="fb-btn-container flex gap-3 justify-evenly text-black">
+          <button class="mb-fb-btn" onclick="sendFeedback('original')">
+            Wikipedia
+          </button>
+          <button class="mb-fb-btn" onclick="sendFeedback('re-ranked')">
+            Cohere
+          </button>
+          <button class="mb-fb-btn" onclick="sendFeedback('same')">
+            No difference
+          </button>
+        </div>
+      </div>
+      <!-- MOBILE THANKS -->
+      <div
+        class="feedback"
+        id="mb-feedback-thanks-holder"
+        style="display: none"
+      >
+        <h3 class="text-black">Thank you! Try another search.</h3>
+      </div>
+
+      <div class="go-back">
+        <button class="go-back-button flex gap-5 items-center">
+          <img src="./assets/ArrowLeft_Icon.svg" alt="left icon" />
+          <p class="text-marble-100">Go back</p>
+        </button>
+      </div>
+
+      <div class="outer-search relative flex items-center pt-2.5 sm:pt-0">
+        <img
+          src="./assets/Search_Icon.svg"
+          alt="search icon"
+          class="absolute pl-3 z-10"
+        />
+        <div class="relative flex items-center w-full">
+          <label for="inner-search-bar" class="sr-only">Search Wikipedia</label>
+          <input
+            id="inner-search-bar"
+            class="search pl-11 py-2.5 rounded-md w-full"
+            type="text"
+            placeholder="Search Wikipedia"
+          />
+          <h3
+            id="loading-message"
+            class="text-xs absolute right-2 top-1/2 transform -translate-y-1/2"
+          >
+            Re-ranking results...
+          </h3>
+        </div>
+      </div>
+
+      <section id="results" class="results-container wrapper">
+        <div class="results-nav flex items-center justify-between sm:h-10">
+          <h4>Search Results</h4>
+          <!-- DESKTOP FEEDBACK HOLDER -->
+          <div
+            class="feedback flex flex-nowrap justify-between items-center gap-5 md:hidden"
+            id="feedback-holder"
+            style="display: none"
+          >
+            <h4>Which generated better results?</h4>
+            <div class="fb-btn-container flex gap-3 text-blue-50">
+              <button class="fb-btn" onclick="sendFeedback('original')">
+                Wikipedia
+              </button>
+              <button class="fb-btn" onclick="sendFeedback('re-ranked')">
+                Cohere
+              </button>
+              <button class="fb-btn" onclick="sendFeedback('same')">
+                No difference
+              </button>
+            </div>
+          </div>
+          <!-- DESKTOP THANKS -->
+          <div
+            class="feedback"
+            id="feedback-thanks-holder"
+            style="display: none"
+          >
+            <h3 class="text-marble-100">Thank you! Try another search.</h3>
+          </div>
+        </div>
+        <!-- NO RESULTS -->
+        <div id="zero-results" style="display: none">
+          <p>
+            Sorry, the Wikipedia API did not return any results for
+            <span id="search-query"></span>.
+          </p>
+          <p>We can only rerank results if there are any.</p>
+          <br />
+          <p>Click <a href="/" class="underline">here</a> to try again.</p>
+        </div>
+        <div class="res-columns flex gap-8">
+          <!-- MOBILE RESULTS TABBED -->
+          <div class="tabs hidden">
+            <div class="tab-list flex items-center">
+              <button class="tab" data-tab-index="0">Wikipedia</button>
+              <button class="tab" data-tab-index="1">Cohere</button>
+            </div>
+            <div class="tab-panels mt-4">
+              <div class="tab-panel" data-tab-index="0">
+                <div class="res-list-container mb-res-list">
+                  <div class="results-top rounded">
+                    <div class="results-title">
+                      <img
+                        src="./assets/Wikipedia_Mushroom.svg"
+                        alt="wiki logo"
+                      />
+                      <h2 class="text-xl">Wikipedia</h2>
+                    </div>
+                    <div class="timing-info text-sm pr-4">
+                      <span id="mb-initial-time"></span> MS
+                    </div>
+                  </div>
+                  <div id="mb-results-orig"></div>
+                </div>
+              </div>
+              <div class="tab-panel" data-tab-index="1">
+                <div class="res-list-container mb-res-list">
+                  <div class="results-top rounded">
+                    <div class="results-title">
+                      <img
+                        src="./assets/Cohere_Logo_Mushroom.svg"
+                        alt="wiki logo"
+                      />
+                      <h2 class="text-xl">Cohere</h2>
+                    </div>
+                    <div class="timing-info wiki-timing text-sm pr-4">
+                      <span id="mb-re-rank-time"></span> MS
+                    </div>
+                  </div>
+                  <div id="mb-results-reranked"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DESKTOP ORIGINAL RESULTS -->
+          <div class="res-list-container">
+            <div class="results-top">
+              <div class="results-title">
+                <img src="./assets/Wikipedia_Mushroom.svg" alt="wiki logo" />
+                <h2 class="text-xl">Wikipedia</h2>
+              </div>
+              <div class="timing-info text-sm pr-4">
+                <span id="initial-time"></span> MS
+              </div>
+            </div>
+            <div id="results-orig"></div>
+          </div>
+          <!--  DESKTOP RERANKED RESULTS -->
+          <div class="res-list-container">
+            <div class="results-top">
+              <div class="results-title">
+                <img src="./assets/Cohere_Logo_Mushroom.svg" alt="wiki logo" />
+                <h2 class="text-xl">Cohere</h2>
+              </div>
+              <div class="timing-info wiki-timing text-sm pr-4">
+                <span id="re-rank-time"></span> MS
+              </div>
+            </div>
+            <div id="results-reranked"></div>
+          </div>
+        </div>
+      </section>
+
+      <template id="result-item">
+        <div class="result-item">
+          <div class="result-item-inner wiki">
+            <div
+              class="preview-and-title wiki-version flex gap-5 pb-6 sm:pl-2.5"
+            >
+              <img class="preview right rounded-sm" />
+              <div
+                class="title-and-text flex flex-col justify-center gap-2 mr-7"
+              >
+                <div class="title-holder">
+                  <a class="link" target="_blank">
+                    <span class="title uppercase text-sm"></span>
+                    <span class="show text-sm"></span>
+                  </a>
+                </div>
+                <p
+                  class="description text-sm sm:text-xs"
+                  onclick="event.target.parentElement.style['max-height']='none'"
+                ></p>
+
+                <div
+                  class="score-info flex justify-between"
+                  style="display: none"
+                >
+                  <p class="scores">
+                    Previous Rank: <span class="rankinfo font-bold"></span>
+                  </p>
+                  <p class="scores">
+                    Relative Score: <span class="rankscore font-bold"></span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </section>
+  </body>
+  <script src="./script.js"></script>
+</html>
