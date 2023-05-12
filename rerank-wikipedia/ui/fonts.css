@@ -1,0 +1,29 @@
+/* fonts.css  */
+
+@font-face {
+  font-family: 'CohereVariable';
+  src: url('./fonts/CohereVariable.woff2') format('woff2'),
+    url('./fonts/CohereVariable.woff') format('woff');
+  font-weight: 400 420 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereText';
+  src: url('./fonts/CohereText-Regular.woff2') format('woff2'),
+    url('./fonts/CohereText-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CohereText';
+  /* In the nature design system, bolded ./fonts always use Cohere Variable. */
+  src: url('./fonts/CohereVariable.woff2') format('woff2'),
+    url('./fonts/CohereVariable.woff') format('woff');
+  font-weight: 500 525;
+  font-style: normal;
+  font-display: swap;
+}
