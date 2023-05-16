@@ -1,0 +1,7 @@
+rerank-wikipedia/__pycache__
+rerank-wikipedia/venv
+rerank-wikipedia/node_modules/
+rerank-wikipedia/.vercel
+rerank-wikipedia/re_rank_demo/.vercel
+rerank-wikipedia/re_rank_demo/feedback-log.jsonl
+rerank-wikipedia/re_rank_demo/re-rank-request-log.jsonl
