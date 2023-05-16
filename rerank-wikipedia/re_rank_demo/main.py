@@ -1,4 +1,3 @@
-import segment.analytics as analytics
 import os
 import uuid
 import json
@@ -14,11 +13,12 @@ from pydantic import BaseModel
 from timeit import default_timer
 from fastapi.staticfiles import StaticFiles
 
-# segment analytics write key
-analytics.write_key = os.environ['ANALYTICS_WRITE_KEY']
-
+LOG_LOCATION = "re-rank-request-log.jsonl"
+FEEDBACK_LOCATION = "feedback-log.jsonl"
 api_app = FastAPI(title="api app")
 
+# Replace the 'x' with your Cohere API key
+os.environ["COHERE_KEY"] = "x"
 # Initialize a cohere client for making calls to rerank
 co = cohere.Client(os.environ["COHERE_KEY"])
 
@@ -136,10 +136,9 @@ async def rerank_wiki(data: SearchInput):
 
     _id = str(uuid.uuid4())
 
-    analytics.track(
-        user_id=_id,
-        event='Request Received',
-        properties={
+    with open(LOG_LOCATION, "a", encoding="utf8") as log:
+        log.write(json.dumps({
+            "id":_id,
             "session_id": data.session_id,
             "timestamp": str(datetime.now()),
             "input":{
@@ -151,8 +150,8 @@ async def rerank_wiki(data: SearchInput):
             },
             "source": data.source,
             "result": re_ranked_result
-        }
-    )
+        },ensure_ascii=False) + "\n")
+
 
     re_ranked_result["id"]=_id
     re_ranked_result["timing"] = {"source": source_time,
@@ -162,17 +161,15 @@ async def rerank_wiki(data: SearchInput):
 
 @api_app.post("/feedback")
 async def feedback(data: FeedbackInput):
-    print(data)
-    analytics.track(
-        user_id=data.query_id,
-        event='Feedback Received',
-        properties={
+
+    with open(FEEDBACK_LOCATION, "a", encoding="utf8") as log:
+        log.write(json.dumps({
             "query_id": data.query_id,
             "session_id": data.session_id,
             "timestamp": str(datetime.now()),
             "feedback": data.feedback
-        }
-    )
+        })+"\n")
+
     return {}
 
 
