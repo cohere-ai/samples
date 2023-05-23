@@ -2,7 +2,7 @@ opensearch_py==2.1.1
 opensearch_py_ml==1.0.0
 pandas==1.5.3 
 cohere==3.8.0
-requests==2.28.2
+requests==2.31.0
 termcolor==2.2.0
 python-dotenv==1.0.0
 tqdm==4.64.1
