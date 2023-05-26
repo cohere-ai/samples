@@ -31,7 +31,7 @@ To make sure your server is running you can run `curl localhost:9200` and you sh
 
 
 ## Step 2: Embed your documents 
-We will be utilizing Cohere's `embed` endpoint to embed documents into vectors. For demo purposes, we will be using the Cohere `small` model which will output vectors with 1024 floating point elements. 
+We will be utilizing Cohere's `embed` endpoint to embed documents into vectors. For demo purposes, we will be using the Cohere `embed-english-light-v2.0` model which will output vectors with 1024 floating point elements. 
 
 To follow along, download the [arxiv dataset](https://www.kaggle.com/datasets/Cornell-University/arxiv). We subset it to 5000 rows for example purposes and saved it to a local `/data` folder. 
 
@@ -60,10 +60,10 @@ import numpy as np
 from typing import List, Union 
 
 def get_cohere_embedding(
-    text: Union[str, List[str]], model_name: str = "small"
+    text: Union[str, List[str]], model_name: str = "embed-english-light-v2.0"
 ) -> List[float]:
     """
-    Embed a single text with cohere client and return list of floats
+    Embed a single text with Cohere client and return list of floats
     """
     if type(text) == str:
         embed = co.embed([text], model=model_name).embeddings
@@ -100,9 +100,9 @@ For this demo, we will run [Approximate k-NN](https://opensearch.org/docs/2.5/se
 To get started with Approximate k-NN, we need to create an index in OpenSearch with the `index.knn` parameter set to true. 
 
 Additionally, we need to set configurations for the kNN search. See docs [here](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index#method-definitions) for guidance on setting the right parameters. This parameters include:   
-* `dimension` = dimensionality of the embedding vector. For us, since we are using the Cohere `small` model, it is 1024. 
+* `dimension` = dimensionality of the embedding vector. For us, since we are using the Cohere `embed-english-light-v2.0` model, it is 1024. 
 * `method.name` = supported algorithm to perform the kNN search. `hnsw` is currently supported with an engine type of `nmslib`
-* `method.space_type` = corresponds to function used to measure distance between two vectors. In this example, we set `space_type='l2'` to denote the L2 distance. There are a variety of other `space_types` you may want to select depending on your use-case. You can find these [here](https://opensearch.org/docs/2.5/search-plugins/knn/approximate-knn/#spaces).
+* `method.space_type` = corresponds to function used to measure distance between two vectors. In this example, we set `cosinesimil` to denote the cosine similarity distance. There are a variety of other `space_types` you may want to select depending on your use-case. You can find these [here](https://opensearch.org/docs/2.5/search-plugins/knn/approximate-knn/#spaces).
 * `method.engine` = the library to use for indexing/search. When using a CPU, `nmslib` is the recommended engine option
 
 When selecting `hnsw` as the `method.name`, we have additional parameters for the `hnsw` algorithm such as `ef_construction` and `m`. See docs [here](https://opensearch.org/docs/2.5/search-plugins/knn/index/) for guidance on setting the right parameters.
@@ -131,10 +131,10 @@ def get_opensearch_client(
 client = get_opensearch_client()
 ```
 
-Create an index by first creating the `body` payload and then submitting that to the index endpoint. The `body` payload specifies the name of your vectors, the size and various Approximate k-NN parameters discussed above. In this example, our document index will be called `arxiv-l2`. 
+Create an index by first creating the `body` payload and then submitting that to the index endpoint. The `body` payload specifies the name of your vectors, the size and various Approximate k-NN parameters discussed above. In this example, our document index will be called `arxiv-cosine`. 
 
 ```python
-INDEX_NAME = "arxiv-l2"
+INDEX_NAME = "arxiv-cosine"
 
 body = {
     "settings": {"index": {"knn": "true", "knn.algo_param.ef_search": 100}},
@@ -145,7 +145,7 @@ body = {
                 "dimension": VECTOR_SIZE,
                 "method": {
                     "name": "hnsw",
-                    "space_type": "l2",
+                    "space_type": "cosinesimil",
                     "engine": "nmslib",
                     "parameters": {"ef_construction": 128, "m": 24},
                 },
@@ -214,13 +214,13 @@ We can do so with the following helper functions:
 from typing import List, Union 
 
 def get_cohere_embedding(
-    text: Union[str, List[str]], model_name: str = "small"
+    text: Union[str, List[str]], model_name: str = "embed-english-light-v2.0"
 ) -> List[float]:
     """
-    Embed a single text with cohere client and return list of floats
+    Embed a single text with Cohere client and return list of floats
     """
     if type(text) == str:
-        embed = co.embed([text], model=model_name).embeddings
+        embed = co.embed([text], model=model_name).embeddings[0]
     else:
         embed = co.embed(text, model=model_name).embeddings
     return embed

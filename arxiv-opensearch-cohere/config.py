@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 from opensearchpy import OpenSearch
 
 load_dotenv(".env")
-cohere_vector_size_lookup = {"small": 1024, "large": 4096}
+cohere_vector_size_lookup = {"embed-english-light-v2.0": 1024}
 
 COHERE_API_KEY = os.environ["COHERE_API_KEY"]
-COHERE_MODEL = "small"
-VECTOR_NAME = f"cohere_{COHERE_MODEL}_vector"
+COHERE_MODEL = "embed-english-light-v2.0"
+VECTOR_NAME = "cohere_vector"
 VECTOR_SIZE = cohere_vector_size_lookup[COHERE_MODEL]
 DATA_PATH = "data/arxiv_5000.csv"
 DATA_COLUMNS = ["title", "abstract"]
