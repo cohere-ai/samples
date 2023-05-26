@@ -1,7 +1,7 @@
 # Cohere / OpenSearch implementation
 
 The following steps outline how a user would perform vector search with Cohere and OpenSearch. Starting with spinning up a local OpenSearch instance and how a user would store Cohere embeddings in an OpenSearch index, and then explaining the methods for retrieval using these embeddings.
-Note, these instructions are based on OpenSearch v2.5.0.
+Note, these instructions are based on OpenSearch v2.7.0.
 
 ## Step 1: Spin up an instance of OpenSearch
 
@@ -11,17 +11,17 @@ To make sure your server is running you can run `curl localhost:9200` and you sh
 
 ```
 {
-  "name" : "c77963d46f00",
+  "name" : "00a9dbfa7905",
   "cluster_name" : "docker-cluster",
-  "cluster_uuid" : "Qn6HcFspROKuaMlmKbYoQQ",
+  "cluster_uuid" : "WC7Xz3BpT5ueMD9TYyQ2DQ",
   "version" : {
     "distribution" : "opensearch",
-    "number" : "2.5.0",
+    "number" : "2.7.0",
     "build_type" : "tar",
-    "build_hash" : "b8a8b6c4d7fc7a7e32eb2cb68ecad8057a4636ad",
-    "build_date" : "2023-01-18T23:49:00.584806002Z",
+    "build_hash" : "b7a6e09e492b1e965d827525f7863b366ef0e304",
+    "build_date" : "2023-04-27T21:43:09.523336706Z",
     "build_snapshot" : false,
-    "lucene_version" : "9.4.2",
+    "lucene_version" : "9.5.0",
     "minimum_wire_compatibility_version" : "7.10.0",
     "minimum_index_compatibility_version" : "7.0.0"
   },
@@ -90,19 +90,19 @@ The full script can be run with `python` [cache_vectors.py](cache_vectors.py)`. 
 ## Step 3: Create an index for your documents
 We need to create an index to store our documents and their dense vectors to allow OpenSearch to do vector search. 
 
-The [k-NN plugin](https://opensearch.org/docs/2.5/search-plugins/knn/index/) in OpenSearch contains 3 methods we can use to search our corpus using vectors. They include: 
+The [k-NN plugin](https://opensearch.org/docs/2.7/search-plugins/knn/index/) in OpenSearch contains 3 methods we can use to search our corpus using vectors. They include: 
 1. Approximate k-NN
 2. Script Score 
 3. Painless extensions
 
-For this demo, we will run [Approximate k-NN](https://opensearch.org/docs/2.5/search-plugins/knn/approximate-knn/). This method will reduce the dimensionality of vectors to be searched and then reindex the document index. Similar documents will be computed as the distance between the query vector and potential hits. It is recommeded to use this approach when the dimensionality of the vector space is large. 
+For this demo, we will run [Approximate k-NN](https://opensearch.org/docs/2.7/search-plugins/knn/approximate-knn/). This method will reduce the dimensionality of vectors to be searched and then reindex the document index. Similar documents will be computed as the distance between the query vector and potential hits. It is recommeded to use this approach when the dimensionality of the vector space is large. 
 
 To get started with Approximate k-NN, we need to create an index in OpenSearch with the `index.knn` parameter set to true. 
 
-Additionally, we need to set configurations for the kNN search. See docs [here](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index#method-definitions) for guidance on setting the right parameters. This parameters include:   
+Additionally, we need to set configurations for the kNN search. See docs [here](https://opensearch.org/docs/2.7/search-plugins/knn/knn-index#method-definitions) for guidance on setting the right parameters. This parameters include:   
 * `dimension` = dimensionality of the embedding vector. For us, since we are using the Cohere `embed-english-light-v2.0` model, it is 1024. 
 * `method.name` = supported algorithm to perform the kNN search. `hnsw` is currently supported with an engine type of `nmslib`
-* `method.space_type` = corresponds to function used to measure distance between two vectors. In this example, we set `cosinesimil` to denote the cosine similarity distance. There are a variety of other `space_types` you may want to select depending on your use-case. You can find these [here](https://opensearch.org/docs/2.5/search-plugins/knn/approximate-knn/#spaces).
+* `method.space_type` = corresponds to function used to measure distance between two vectors. In this example, we set `cosinesimil` to denote the cosine similarity distance. There are a variety of other `space_types` you may want to select depending on your use-case. You can find these [here](https://opensearch.org/docs/2.7/search-plugins/knn/approximate-knn/#spaces).
 * `method.engine` = the library to use for indexing/search. When using a CPU, `nmslib` is the recommended engine option
 
 When selecting `hnsw` as the `method.name`, we have additional parameters for the `hnsw` algorithm such as `ef_construction` and `m`. See docs [here](https://opensearch.org/docs/2.5/search-plugins/knn/index/) for guidance on setting the right parameters.
@@ -262,8 +262,7 @@ You are now able to search your index semantically! A full demo of the semantic 
 ## TL,DR: 
 * Set up your configs in [config.py](config.py)
 * Run `python` [cache_vectors.py](cache_vectors.py) to create your embeddings 
-* Run `python` [create_index.py](create_index.py) to create an L2 based index 
-* Optionally, run `python` [create_cosine_index.py](create_cosine_index.py) to create a cosine based index
+* Run `python` [create_cosine_index.py](create_cosine_index.py) to create a cosine based index
 * Run `demo.ipynb` to visualize the results
 * If you'd like to run the streamlit demo run the following and your app will be available at `http://localhost:8080`
 
@@ -272,6 +271,6 @@ You are now able to search your index semantically! A full demo of the semantic 
     ``` 
 
 ## References 
-* OpenSearch knn [docs](https://opensearch.org/docs/2.5/search-plugins/knn/knn-index/)
+* OpenSearch knn [docs](https://opensearch.org/docs/2.7/search-plugins/knn/knn-index/)
 * opensearch-py [guide](https://github.com/opensearch-project/opensearch-py/blob/main/guides/search.md)
 * opensearch-py-ml [docs](https://opensearch-project.github.io/opensearch-py-ml/reference/api/DataFrame.html)
