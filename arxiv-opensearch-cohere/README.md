@@ -59,14 +59,15 @@ Once you have a list of texts to embed, hit the `embed` endpoint using the follo
 import numpy as np 
 from typing import List, Union 
 
-def get_cohere_embedding(
+def 
+_embedding(
     text: Union[str, List[str]], model_name: str = "embed-english-light-v2.0"
 ) -> List[float]:
     """
     Embed a single text with Cohere client and return list of floats
     """
     if type(text) == str:
-        embed = co.embed([text], model=model_name).embeddings
+        embed = co.embed([text], model=model_name).embeddings[0]
     else:
         embed = co.embed(text, model=model_name).embeddings
     return embed
