@@ -55,13 +55,13 @@ def batch_embed(texts: List[str], batch_size: int = 256) -> List[np.array]:
 
 
 def get_cohere_embedding(
-    text: Union[str, List[str]], model_name: str = "small"
+    text: Union[str, List[str]], model_name: str = "embed-english-light-v2.0"
 ) -> List[float]:
     """
     Embed a single text with cohere client and return list of floats
     """
     if type(text) == str:
-        embed = co.embed([text], model=model_name).embeddings
+        embed = co.embed([text], model=model_name).embeddings[0]
     else:
         embed = co.embed(text, model=model_name).embeddings
     return embed
@@ -128,6 +128,7 @@ def format_search_output(out: Dict) -> pd.DataFrame:
     Helper function to format output from _search endpoints that
     return list of lists and need to be formatted into a dataframe
     """
+    columns = ["score", "abstract", "title", "arxiv_id", "embeddings"]
     try:
         out = out["hits"]["hits"]
         data = [
@@ -136,14 +137,15 @@ def format_search_output(out: Dict) -> pd.DataFrame:
                 o["_source"]["text"],
                 o["_source"]["title"],
                 o["_source"]["arxiv_id"],
-                o["_source"]["cohere_small_vector"],
+                o["_source"][VECTOR_NAME],
             ]
             for o in out
         ]
-        columns = ["score", "abstract", "title", "arxiv_id", "embeddings"]
+        
         df = pd.DataFrame(data, columns=columns)
     except Exception as e:
         print(f"couldnt format output because of {e}")
+        df = pd.DataFrame([], columns=columns)
     return df.sort_values(by="score", ascending=False)
 
 
