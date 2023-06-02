@@ -25,6 +25,7 @@ function classify(s_args, s_input) {
       'contentType': 'application/json',
       'payload' : JSON.stringify(payload_for_classification)
     };
+
     const response = UrlFetchApp.fetch('https://api.cohere.ai/v1/classify', options);
     const responseContent = response.getContentText();
     const responseContentText = JSON.parse(response.getContentText());
@@ -32,7 +33,6 @@ function classify(s_args, s_input) {
     const ourPrediction = classificationContent.prediction;
     const confidence = (classificationContent.confidence * 100).toFixed(2) + "%";
     let displayString = "Prediction: " + ourPrediction.toUpperCase() + " review\n" + "Confidence Level: " + confidence + "\n";
-    let yooo = "YOOO "+responseContent;
     return displayString;
   
   }
