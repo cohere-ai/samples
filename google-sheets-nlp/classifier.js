@@ -58,6 +58,7 @@ function summarize(cell_value) {
         'payload': raw,
         redirect: 'follow'
     };
+    
      let response = UrlFetchApp.fetch("https://api.cohere.ai/v1/summarize", requestOptions)
      let responseContentTxt = JSON.parse(response.getContentText());
      let summarizedTxt = "SUMMARY: " + responseContentTxt.summary + "\n";
