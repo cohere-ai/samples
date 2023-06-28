@@ -92,7 +92,7 @@ async def re_rank(data: ReRankInput):
         return {"results": []}
     rerank_time = default_timer()
     re_ranked_result = co.rerank(
-        model="rerank-english-02",
+        model="rerank-english-v2.0",
         query=data.query, 
         documents=data.passages)
     serializable = []
@@ -123,7 +123,7 @@ async def rerank_wiki(data: SearchInput):
     rerank_time = default_timer()
 
     re_ranked_result = co.rerank(
-        model="rerank-english-02",
+        model="rerank-english-v2.0",
         query=data.query, 
         documents=initial_passages)
     serializable = []
