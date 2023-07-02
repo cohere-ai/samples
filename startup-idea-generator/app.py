@@ -144,6 +144,6 @@ with form:
           st.markdown("""---""")
           startup_idea = generate_idea(industry_input,creativity_input)
           startup_name = generate_name(startup_idea,creativity_input)
-          st.markdown("##### " + startup_name)
+          st.markdown("##### " + str(startup_name))
           st.write(startup_idea)
           my_bar.progress((i+1)/num_input)
