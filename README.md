@@ -11,10 +11,6 @@
 
 <br>
 
-<p align="center">
-  <img src="cohere-logo.png">
-</p>
-
 <br>
 <br>
 
