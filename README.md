@@ -3,15 +3,10 @@
 <h1 align="center">Cohere Samples</h1>
 
 <br>
-<br>
 
 <p align="center">
   <b>Sample integrations built by Cohere.</b><br>
 </p>
-
-<br>
-
-<br>
 <br>
 
 This project showcases sample uses of Cohere's API. Samples include:
