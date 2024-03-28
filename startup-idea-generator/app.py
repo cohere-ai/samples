@@ -3,11 +3,8 @@ import streamlit as st
 import os
 import textwrap
 
-# Cohere API key
-api_key = os.environ["CO_KEY"]
-
 # Set up Cohere client
-co = cohere.Client(api_key)
+co = cohere.Client(os.environ["COHERE_API_KEY"]) # Get your API key: https://dashboard.cohere.com/api-keys
 
 def generate_idea(industry, temperature):
   """
@@ -18,42 +15,32 @@ def generate_idea(industry, temperature):
   Returns:
     response(str): the startup idea
   """
-  base_idea_prompt = textwrap.dedent("""
-    This program generates a startup idea given the industry.
+  prompt = f"""
+Generate a startup idea given the industry.
 
-    Industry: Workplace
-    Startup Idea: A platform that generates slide deck contents automatically based on a given outline
+# Examples
+Industry: Workplace
+Startup Idea: A platform that generates slide deck contents automatically based on a given outline
 
-    --
-    Industry: Home Decor
-    Startup Idea: An app that calculates the best position of your indoor plants for your apartment
+Industry: Home Decor
+Startup Idea: An app that calculates the best position of your indoor plants for your apartment
 
-    --
-    Industry: Healthcare
-    Startup Idea: A hearing aid for the elderly that automatically adjusts its levels and with a battery lasting a whole week
+Industry: Healthcare
+Startup Idea: A hearing aid for the elderly that automatically adjusts its levels and with a battery lasting a whole week
 
-    --
-    Industry: Education
-    Startup Idea: An online primary school that lets students mix and match their own curriculum based on their interests and goals
+Industry: Education
+Startup Idea: An online primary school that lets students mix and match their own curriculum based on their interests and goals
 
-    --
-    Industry:""")
+Industry: {industry}"""
 
-  # Call the Cohere Generate endpoint
-  response = co.generate( 
-    model='xlarge', 
-    prompt = base_idea_prompt + " " + industry + "\nStartup Idea: ",
-    max_tokens=50, 
+  # Call the Cohere Chat endpoint
+  response = co.chat( 
+    model='command-r', 
+    message=prompt,
     temperature=temperature,
-    k=0, 
-    p=0.7, 
-    frequency_penalty=0.1, 
-    presence_penalty=0, 
-    stop_sequences=["--"])
-  startup_idea = response.generations[0].text
-  startup_idea = startup_idea.replace("\n\n--","").replace("\n--","").strip()
+    preamble="")
 
-  return startup_idea
+  return response.text.replace("Startup Idea: ", "")
 
 def generate_name(idea, temperature):
   """
@@ -64,42 +51,32 @@ def generate_name(idea, temperature):
   Returns:
     response(str): the startup name
   """
-  base_name_prompt= textwrap.dedent("""
-    This program generates a startup name and name given the startup idea.
+  prompt= f"""
+Generate a startup name and name given the startup idea.
 
-    Startup Idea: A platform that generates slide deck contents automatically based on a given outline
-    Startup Name: Deckerize
+# Examples
+Startup Idea: A platform that generates slide deck contents automatically based on a given outline
+Startup Name: Deckerize
 
-    --
-    Startup Idea: An app that calculates the best position of your indoor plants for your apartment
-    Startup Name: Planteasy 
+Startup Idea: An app that calculates the best position of your indoor plants for your apartment
+Startup Name: Planteasy 
 
-    --
-    Startup Idea: A hearing aid for the elderly that automatically adjusts its levels and with a battery lasting a whole week
-    Startup Name: Hearspan
+Startup Idea: A hearing aid for the elderly that automatically adjusts its levels and with a battery lasting a whole week
+Startup Name: Hearspan
 
-    --
-    Startup Idea: An online primary school that lets students mix and match their own curriculum based on their interests and goals
-    Startup Name: Prime Age
+Startup Idea: An online primary school that lets students mix and match their own curriculum based on their interests and goals
+Startup Name: Prime Age
 
-    --
-    Startup Idea:""")
+Startup Idea: {idea}"""
 
-  # Call the Cohere Generate endpoint
-  response = co.generate( 
-    model='xlarge', 
-    prompt = base_name_prompt + " " + idea + "\nStartup Name:",
-    max_tokens=10, 
+  # Call the Cohere Chat endpoint
+  response = co.chat( 
+    model='command-r', 
+    message=prompt,
     temperature=temperature,
-    k=0, 
-    p=0.7, 
-    frequency_penalty=0, 
-    presence_penalty=0, 
-    stop_sequences=["--"])
-  startup_name = response.generations[0].text
-  startup_name = startup_name.replace("\n\n--","").replace("\n--","").strip()
+    preamble="")
 
-  return startup_name
+  return response.text.replace("Startup Name: ", "")
 
 # The front end code starts here
 
